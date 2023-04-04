@@ -45,7 +45,7 @@ public class MicrosoftAuth {
         int code = con.getResponseCode();
         if (code >= 400) {
             InputStreamReader reader = new InputStreamReader(con.getErrorStream());
-            String error = new JsonParser().parse(reader).getAsJsonObject().get("error").getAsString();
+            String error = JsonParser.parseReader(reader).getAsJsonObject().get("error").getAsString();
             con.disconnect();
             throw new IOException(error);
         } else {
@@ -72,7 +72,7 @@ public class MicrosoftAuth {
                     int code = con.getResponseCode();
                     if (code >= 400) {
                         InputStreamReader reader = new InputStreamReader(con.getErrorStream());
-                        String error = new JsonParser().parse(reader).getAsJsonObject().get("error").getAsString();
+                        String error = JsonParser.parseReader(reader).getAsJsonObject().get("error").getAsString();
                         TokenErrorResponse resp = null;
                         if (error != null) {
                             resp = TokenErrorResponse.getForResponse(error);
@@ -137,7 +137,7 @@ public class MicrosoftAuth {
         int code = con.getResponseCode();
         if (code >= 400) {
             if (code == 401) {
-                String err = Long.toString(new JsonParser().parse(new InputStreamReader(con.getInputStream()))
+                String err = Long.toString(JsonParser.parseReader(new InputStreamReader(con.getInputStream()))
                         .getAsJsonObject().get("XErr").getAsLong());
                 String msg = null;
                 switch (err) {
@@ -167,7 +167,7 @@ public class MicrosoftAuth {
             throw new IOException("The server returned error " + code + " while getting XSTS token");
         }
 
-        JsonObject obj = new JsonParser().parse(new InputStreamReader(con.getInputStream())).getAsJsonObject();
+        JsonObject obj = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
 
         String token = obj.get("Token").getAsString();
         String userHash = obj.get("DisplayClaims").getAsJsonObject().get("xui").getAsJsonArray().get(0)
@@ -203,7 +203,7 @@ public class MicrosoftAuth {
             con.disconnect();
             throw new IOException("The server returned error " + code + " while authenticating with XBox Live");
         }
-        String token = new JsonParser().parse(new InputStreamReader(con.getInputStream())).getAsJsonObject()
+        String token = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject()
                 .get("Token").getAsString();
         con.disconnect();
 
@@ -223,7 +223,7 @@ public class MicrosoftAuth {
         int code = con.getResponseCode();
         InputStreamReader reader = new InputStreamReader(code >= 400 ? con.getErrorStream() : con.getInputStream());
         if (code >= 400) {
-            String error = new JsonParser().parse(reader).getAsJsonObject().get("error").getAsString();
+            String error = JsonParser.parseReader(reader).getAsJsonObject().get("error").getAsString();
             con.disconnect();
             throw new IOException("Server returned an error " + code + ": " + error);
         } else {
@@ -242,7 +242,7 @@ public class MicrosoftAuth {
         if (con.getResponseCode() >= 400)
             throw new IOException("Server returned " + con.getResponseCode() + " when retrieving game profile!");
 
-        JsonObject obj = new JsonParser().parse(new InputStreamReader(con.getInputStream())).getAsJsonObject();
+        JsonObject obj = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
         con.disconnect();
 
         if (obj.has("id") && obj.has("name")) {
@@ -267,7 +267,7 @@ public class MicrosoftAuth {
         if (con.getResponseCode() >= 400)
             throw new IOException("Server returned " + con.getResponseCode() + " when checking game ownership!");
 
-        boolean own = new JsonParser().parse(new InputStreamReader(con.getInputStream())).getAsJsonObject().get("items")
+        boolean own = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject().get("items")
                 .getAsJsonArray().size() > 0;
 
         return own;
